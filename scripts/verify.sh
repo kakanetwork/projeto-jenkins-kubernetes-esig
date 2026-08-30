@@ -117,16 +117,27 @@ curl -fsS \
 
 echo "OK: Prometheus está saudável."
 
-jvm_metrics="$(
-  curl -fsS \
-    -G "$prometheus_url/api/v1/query" \
-    --data-urlencode \
-    'query=tomcat_jvm_runtime_Uptime{job="jenkins-tomcat"}' \
-  | jq -r '.data.result | length'
-)"
+jvm_metrics=0
+
+for attempt in {1..12}; do
+  jvm_metrics="$(
+    curl -fsS \
+      -G "$prometheus_url/api/v1/query" \
+      --data-urlencode \
+      'query=tomcat_jvm_runtime_Uptime{job="jenkins-tomcat"}' \
+    | jq -r '.data.result | length'
+  )"
+
+  if [[ "$jvm_metrics" -ge 1 ]]; then
+    break
+  fi
+
+  echo "Aguardando a primeira coleta da JVM... tentativa $attempt de 12."
+  sleep 5
+done
 
 if [[ "$jvm_metrics" -lt 1 ]]; then
-  echo "Erro: métrica da JVM não encontrada."
+  echo "Erro: métrica da JVM não encontrada após 60 segundos."
   exit 1
 fi
 
