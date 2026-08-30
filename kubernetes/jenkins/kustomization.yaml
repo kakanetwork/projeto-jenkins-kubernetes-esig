@@ -1,0 +1,18 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - pvc.yaml
+  - deployment.yaml
+  - jenkins-service.yaml
+  - telegraf-service.yaml
+
+configMapGenerator:
+  - name: telegraf-config
+    files:
+      - telegraf.conf
+
+secretGenerator:
+  - name: jolokia-credentials
+    envs:
+      - .env

@@ -1,0 +1,14 @@
+# Bins
+*.war
+downloads/
+
+# Variáveis de ambiente
+.env
+*.key
+*.crt
+*.p12
+*.jks
+
+# Temps
+*.log
+tmp/

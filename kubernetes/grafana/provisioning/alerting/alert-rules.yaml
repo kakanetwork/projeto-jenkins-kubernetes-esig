@@ -1,0 +1,169 @@
+apiVersion: 1
+groups:
+    - orgId: 1
+      name: jenkins-tomcat
+      folder: desafio-esig
+      interval: 1m
+      rules:
+        - uid: dfwr48a885edce
+          title: Coleta Jenkins/Tomcat indisponível
+          condition: B
+          data:
+            - refId: A
+              relativeTimeRange:
+                from: 600
+                to: 0
+              datasourceUid: PBFA97CFB590B2093
+              model:
+                editorMode: code
+                expr: "absent(\r\n  tomcat_jvm_runtime_Uptime{\r\n    job=\"jenkins-tomcat\"\r\n  }\r\n) or vector(0)"
+                instant: true
+                intervalMs: 1000
+                legendFormat: __auto
+                maxDataPoints: 43200
+                range: false
+                refId: A
+            - refId: B
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params:
+                            - 0
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params: []
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: A
+                intervalMs: 1000
+                maxDataPoints: 43200
+                refId: B
+                type: threshold
+          noDataState: OK
+          execErrState: Error
+          for: 2m
+          annotations:
+            description: A métrica de uptime da JVM não foi recebida durante pelo menos 2 minutos. Verificar Jenkins, Jolokia, Telegraf e Prometheus.
+            summary: Coleta de métricas do Jenkins/Tomcat indisponível
+          labels:
+            service: jenkins-tomcat
+            severity: critical
+          isPaused: false
+          notification_settings:
+            receiver: empty
+        - uid: cfwr4iywr7r40f
+          title: Uso elevado da memória Heap da JVM
+          condition: B
+          data:
+            - refId: A
+              relativeTimeRange:
+                from: 600
+                to: 0
+              datasourceUid: PBFA97CFB590B2093
+              model:
+                editorMode: code
+                expr: "100 * tomcat_jvm_memory_HeapMemoryUsage_used{job=\"jenkins-tomcat\"}\r\n/\r\ntomcat_jvm_memory_HeapMemoryUsage_max{job=\"jenkins-tomcat\"}"
+                instant: true
+                intervalMs: 1000
+                legendFormat: __auto
+                maxDataPoints: 43200
+                range: false
+                refId: A
+            - refId: B
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params:
+                            - 80
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params: []
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: A
+                intervalMs: 1000
+                maxDataPoints: 43200
+                refId: B
+                type: threshold
+          noDataState: OK
+          execErrState: Error
+          for: 5m
+          annotations:
+            description: A memória Heap da JVM do Jenkins/Tomcat permaneceu acima de 80% durante pelo menos 5 minutos. Verifique o consumo da aplicação, a atividade do Garbage Collector e os limites de memória do contêiner.
+            summary: Uso elevado da memória Heap da JVM
+          labels:
+            service: jenkins-tomcat
+            severity: warning
+          isPaused: false
+          notification_settings:
+            receiver: empty
+        - uid: cfwr4s76gh91cb
+          title: Uso elevado de CPU do processo Java
+          condition: B
+          data:
+            - refId: A
+              relativeTimeRange:
+                from: 600
+                to: 0
+              datasourceUid: PBFA97CFB590B2093
+              model:
+                editorMode: code
+                expr: "100 * clamp_min(\r\n  tomcat_operating_system_ProcessCpuLoad{job=\"jenkins-tomcat\"},\r\n  0\r\n)"
+                instant: true
+                intervalMs: 1000
+                legendFormat: __auto
+                maxDataPoints: 43200
+                range: false
+                refId: A
+            - refId: B
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params:
+                            - 85
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params: []
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: A
+                intervalMs: 1000
+                maxDataPoints: 43200
+                refId: B
+                type: threshold
+          noDataState: OK
+          execErrState: Error
+          for: 5m
+          annotations:
+            description: O processo Java do Jenkins/Tomcat permaneceu acima de 85% de uso de CPU durante pelo menos 5 minutos. Verifique builds em execução, consumo da JVM e limites de CPU do contêiner.
+            summary: Uso elevado de CPU do processo Java
+          labels:
+            service: jenkins-tomcat
+            severity: warning
+          isPaused: false
+          notification_settings:
+            receiver: empty

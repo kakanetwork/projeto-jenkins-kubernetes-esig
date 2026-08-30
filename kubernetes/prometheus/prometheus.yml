@@ -1,0 +1,21 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: prometheus
+    static_configs:
+      - targets:
+          - localhost:9090
+
+  - job_name: jenkins-tomcat
+    static_configs:
+      - targets:
+          - telegraf:9273
+
+  - job_name: node-exporter
+    dns_sd_configs:
+      - names:
+          - node-exporter
+        type: A
+        port: 9100

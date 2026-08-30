@@ -1,0 +1,11 @@
+# Config do cluster  com Kind.
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+
+nodes:
+  # Nó de gerenciamento do cluster.
+  - role: control-plane
+
+  # Nós das aplicações.
+  - role: worker
+  - role: worker

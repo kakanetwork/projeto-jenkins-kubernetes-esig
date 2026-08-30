@@ -1,0 +1,87 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  labels:
+    app: jenkins
+  name: jenkins
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: jenkins
+
+  strategy: 
+    type: Recreate
+
+  template:
+    metadata:
+      labels:
+        app: jenkins
+
+    spec:
+      containers:
+      - name: jenkins-tomcat
+        image: desafio-esig/jenkins-tomcat
+        imagePullPolicy: IfNotPresent
+
+        resources:
+          requests:
+            cpu: 500m
+            memory: 800Mi
+          limits:
+            cpu: "2"
+            memory: 2Gi
+
+        envFrom:
+          - secretRef:
+              name: jolokia-credentials
+
+        ports:
+          - containerPort: 8080
+
+        volumeMounts:
+          - name: jenkins-data
+            mountPath: /root/.jenkins
+      
+      
+      - name: telegraf
+        image: telegraf:1.39.3-alpine
+        imagePullPolicy: IfNotPresent
+        
+        resources:
+          requests:
+            cpu: 50m
+            memory: 70Mi
+          limits:
+            cpu: 250m
+            memory: 260Mi
+
+        env:
+          - name: JOLOKIA_URL
+            value: http://127.0.0.1:8080/jolokia
+
+        envFrom:
+          - secretRef:
+              name: jolokia-credentials
+
+        ports:
+          - containerPort: 9273
+
+        volumeMounts:
+          - name: telegraf-config
+            mountPath: /etc/telegraf/telegraf.conf
+            subPath: telegraf.conf
+            readOnly: true
+
+
+      volumes:
+        - name: jenkins-data
+          persistentVolumeClaim:
+            claimName: jenkins-data
+
+        - name: telegraf-config
+          configMap:
+            name: telegraf-config
