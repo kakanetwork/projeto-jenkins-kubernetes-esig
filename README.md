@@ -216,6 +216,12 @@ Não foi configurado um canal externo de notificação. As regras permanecem dis
 
 *Visão consolidada de CPU, memória, disco e rede dos nós Kubernetes.*
 
+### Dashboard de monitoramento do Jenkins, Tomcat e JVM
+
+O dashboard apresenta as principais métricas da aplicação, incluindo uso de CPU da JVM, memória heap e non-heap, garbage collection, threads e informações do Tomcat.
+
+![Dashboard de monitoramento do Jenkins, Tomcat e JVM](docs/images/dashboard-jenkins-tomcat-jvm.png)
+
 ### Validação dos alertas
 
 ![Regra de alerta disparada no Grafana](docs/images/grafana-alerta.png)
